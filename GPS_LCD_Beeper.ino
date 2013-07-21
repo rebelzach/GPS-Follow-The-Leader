@@ -50,7 +50,7 @@ void setup() {
     beeper.useBuzzer = YES;
     beeper.volume = 5;
     beeper.beepWithRate(10);
-    beeper.beepArrival();
+    beeper.beepAcknowledge();
     frontControls.generalMessage("Admin mode");
   } else {
     beeper.beepAffirmative();

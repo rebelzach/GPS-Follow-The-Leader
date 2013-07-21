@@ -25,8 +25,8 @@ Beeper::Beeper() {
 
 const int arrivalCount = 8;
 Note arrival[arrivalCount] = {{NOTE_C5, 4},{NOTE_G4, 8},{NOTE_G4, 8},{NOTE_A4, 4},{NOTE_G4, 4},{0, 4},{NOTE_B4, 8},{NOTE_C5, 4}};
-const int arrivalCount = 2;
-Note arrival[arrivalCount] = {{NOTE_C5, 4},{NOTE_G4, 8},{NOTE_G4, 8},{NOTE_A4, 4},{NOTE_G4, 4},{0, 4},{NOTE_B4, 8},{NOTE_C5, 4}};
+const int acknowledgeCount = 4;
+Note acknowledge[acknowledgeCount] = {{1200, 16},{0, 8},{1200, 16},{0, 8}};
 
 void Beeper::processLoop() {
   if (beepType == NO_BEEP) 
@@ -36,6 +36,7 @@ void Beeper::processLoop() {
     debugPrint("note");
     debugPrintln(noteIndex);
     note(currentNoteArray[noteIndex].freq);
+    ResetLazyTimer(BeepTimer);
     ++noteIndex;
     return;
   }
@@ -46,11 +47,11 @@ void Beeper::processLoop() {
       debugPrint("note");
       debugPrint(noteIndex);
       debugPrint(",");
-      debugPrintln(currentNoteArray[noteIndex - 1].duration);
+      debugPrintln(currentNoteArray[noteIndex - 1].freq);
       if (noteIndex == currentNoteTotal) { // Last note
         note(0);
         debugPrint("Previous Type:");
-      debugPrintln(previousBeepType);
+        debugPrintln(previousBeepType);
         beepType = previousBeepType;
         copyNotesArrayToArray(previousNoteArray, currentNoteArray, previousNoteTotal);
         currentNoteTotal = previousNoteTotal;
@@ -58,8 +59,8 @@ void Beeper::processLoop() {
         noteIndex = 0;
         return;
       }
-      ++noteIndex;
       note(currentNoteArray[noteIndex].freq);
+      ++noteIndex;
       ResetLazyTimer(BeepTimer);
     } 
   }
@@ -90,7 +91,7 @@ void Beeper::beepArrival()
 
 void Beeper::beepAcknowledge()
 {
-  //startBeepWithType(BEEP_SINGLE);
+  startBeepWithType(BEEP_SINGLE, acknowledge, acknowledgeCount);
 }
 
 void Beeper::beepReallyFast() {
