@@ -10,7 +10,7 @@
 #include <LiquidCrystal.h>
 //Todo
 /*
-Arrival song
+Arrival song, press a button to silence
 Timeout power off
 Handle position loss audibly
 LATER:
@@ -25,7 +25,7 @@ boolean adminMode = NO;
 int currentMenuIndex = 0;
 
 void setup() { 
-#if 0 
+#if 1 
   adminMode = YES;
 #endif
   debugBegin();
@@ -47,9 +47,10 @@ void setup() {
   frontControls.setSwitchHeldCallbacks(upSwitchHeld, downSwitchHeld);
   gpsGuide.setSerialTokenReleasedCallback(gpsSerialReleased);
   if (adminMode == YES) {
-    beeper.beepAcknowledge();
     beeper.useBuzzer = YES;
-    beeper.volume = 1;
+    beeper.volume = 5;
+    beeper.beepWithRate(10);
+    beeper.beepArrival();
     frontControls.generalMessage("Admin mode");
   } else {
     beeper.beepAffirmative();

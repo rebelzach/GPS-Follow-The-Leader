@@ -5,175 +5,137 @@
 #include <toneAC.h>
 #include "Beeper.h"
 #include "Definitions.h"
+#include "Pitches.h"
 
 LazyTimer(BeepTimer);
 const int BUZZER_PIN = 10;
-const int BUZZER_FREQ = 1900;
+const int BUZZER_FREQ = 800;
 const int BUZZER_VOL = 10;
 const int SILENT_PIN = 6;
 
 Beeper::Beeper() {
   pinMode(BUZZER_PIN, OUTPUT);
-  beepState = OFF;
-  useLight = OFF;
+  noteIndex = 0;
   useBuzzer = ON;
-  beepLength = 0;
-  beepPause = 0;
   beepType = NO_BEEP;
   volume = BUZZER_VOL;
+  currentNoteTotal = 0;
+  previousNoteTotal = 0;
 }
+
+const int arrivalCount = 8;
+Note arrival[arrivalCount] = {{NOTE_C5, 4},{NOTE_G4, 8},{NOTE_G4, 8},{NOTE_A4, 4},{NOTE_G4, 4},{0, 4},{NOTE_B4, 8},{NOTE_C5, 4}};
+const int arrivalCount = 2;
+Note arrival[arrivalCount] = {{NOTE_C5, 4},{NOTE_G4, 8},{NOTE_G4, 8},{NOTE_A4, 4},{NOTE_G4, 4},{0, 4},{NOTE_B4, 8},{NOTE_C5, 4}};
 
 void Beeper::processLoop() {
-  if (beepType == NO_BEEP)
+  if (beepType == NO_BEEP) 
     return;
   
-  if (beepType == BEEP_ACKNOWLEDGE) {
-    if (beepState == 0) {
-      if (useBuzzer) {
-        toneAC(BUZZER_FREQ, volume);
-      }
-      beepState = 1;
-    }
-    if (LazyTimerDuration(BeepTimer) > 50 && beepState == 1) {
-      if (useBuzzer) {
-        noToneAC();
-      }
-      beepState = 2;
-    }
-    if (LazyTimerDuration(BeepTimer) > 100 && beepState == 2) {
-      if (useBuzzer) {
-        toneAC(BUZZER_FREQ, volume);
-      }
-      beepState = 3;
-    }
-    if (LazyTimerPastDuration(BeepTimer, 150) && beepState == 3) {
-      if (useBuzzer) {
-        noToneAC();
-      }
-      beepType = previousBeepType;
-      ResetLazyTimer(BeepTimer);
-      beepState = 0;
-    }
+  if (noteIndex == 0) {
+    debugPrint("note");
+    debugPrintln(noteIndex);
+    note(currentNoteArray[noteIndex].freq);
+    ++noteIndex;
     return;
   }
   
-  if (beepType == BEEP_AFFIRMATIVE) {
-    if (!LazyTimerDuration(BeepTimer) < 100 && beepState == 0) {
-      if (useBuzzer) {
-        toneAC(1300, volume);
+  if (beepType == BEEP_SINGLE) {
+    int duration = 1000/currentNoteArray[noteIndex - 1].duration;
+    if (LazyTimerDuration(BeepTimer) > duration) {
+      debugPrint("note");
+      debugPrint(noteIndex);
+      debugPrint(",");
+      debugPrintln(currentNoteArray[noteIndex - 1].duration);
+      if (noteIndex == currentNoteTotal) { // Last note
+        note(0);
+        debugPrint("Previous Type:");
+      debugPrintln(previousBeepType);
+        beepType = previousBeepType;
+        copyNotesArrayToArray(previousNoteArray, currentNoteArray, previousNoteTotal);
+        currentNoteTotal = previousNoteTotal;
+        ResetLazyTimer(BeepTimer);
+        noteIndex = 0;
+        return;
       }
-      beepState = 1;
-    }
-    if (LazyTimerPastDuration(BeepTimer, 200) && beepState == 1) {
-      if (useBuzzer) {
-        toneAC(BUZZER_FREQ, volume);
-      }
-      beepState = 2;
-    }
-    if (LazyTimerPastDuration(BeepTimer, 300) && beepState == 2) {
-      if (useBuzzer) {
-        noToneAC();
-      }
-      beepType = previousBeepType;
+      ++noteIndex;
+      note(currentNoteArray[noteIndex].freq);
       ResetLazyTimer(BeepTimer);
-      beepState = 0;
-    }
-    return;
+    } 
   }
   
-  if (beepState == ON) {
-    if (LazyTimerPastDuration(BeepTimer, beepLength)) {
-      if (useLight) {
-        digitalWrite(SILENT_PIN, LOW);
-      } 
-      if (useBuzzer) {
-        noToneAC();
+  if (beepType == BEEP_REPEATING) {
+    if (LazyTimerDuration(BeepTimer) > 1000/currentNoteArray[noteIndex - 1].duration) {
+      debugPrint("note");
+      debugPrint(noteIndex);
+      debugPrint(",");
+      debugPrintln(currentNoteArray[noteIndex - 1].duration);
+      if (noteIndex == currentNoteTotal) { // Last note
+        ResetLazyTimer(BeepTimer);
+        noteIndex = 0;
+        return;
       }
-      beepState = OFF;
+      note(currentNoteArray[noteIndex].freq);
       ResetLazyTimer(BeepTimer);
+      ++noteIndex;
     }
-  } else {
-    if (LazyTimerPastDuration(BeepTimer, beepPause)) {
-      if (useLight) {
-        digitalWrite(SILENT_PIN, HIGH);
-      }
-      if (useBuzzer) {
-          toneAC(BUZZER_FREQ, volume);
-      }
-      beepState = ON;
-      ResetLazyTimer(BeepTimer);
-    }
-  } 
-  
+  }
 }
 
-void Beeper::beepSlow() {
-  debugPrintln("Beep Slow");
-  beepPause = 1000;
-  beepLength = 200;
-  startBeepWithType(BEEP_WITH_RATE);
+
+void Beeper::beepArrival()
+{
+  startBeepWithType(BEEP_SINGLE, arrival, arrivalCount);
 }
 
 void Beeper::beepAcknowledge()
 {
-  startBeepWithType(BEEP_ACKNOWLEDGE);
-}
-
-void Beeper::beepMedium() {
-  beepPause =500;
-  beepLength = 100;
-  debugPrintln("Beep Med");
-  startBeepWithType(BEEP_WITH_RATE);
-}
-
-void Beeper::beepFast() {
-  beepPause = 180;
-  beepLength = 75;
-  debugPrintln("Beep Fast");
-  startBeepWithType(BEEP_WITH_RATE);
+  //startBeepWithType(BEEP_SINGLE);
 }
 
 void Beeper::beepReallyFast() {
-  beepPause = 75;
-  beepLength = 30;
   debugPrintln("Beep Real Fast");
-  startBeepWithType(BEEP_WITH_RATE);
+  //startBeepWithType(BEEP_REPEATING);
 }
 
 void Beeper::stopBeeping() {
   debugPrintln("No beep");
   StopLazyTimer(BeepTimer);
   beepType = NO_BEEP;
-  beepState = 0;
-  noToneAC();
-  if (useLight) {
-    digitalWrite(SILENT_PIN, LOW);
-  }
+  noteIndex = 0;
+  note(0);
 }
 
 void Beeper::beepNegative() {
   debugPrintln("Beep Negative");
-  startBeepWithType(BEEP_NEGATIVE);
+  //startBeepWithType(BEEP_SINGLE);
 }
 
 void Beeper::beepAffirmative() {
   debugPrintln("Beep Affirmative");
-  startBeepWithType(BEEP_AFFIRMATIVE);
+  //startBeepWithType(BEEP_SINGLE);
 }
 
-void Beeper::startBeepWithType(int type) {
-  if(type == beepType)
+void Beeper::startBeepWithType(int type, Note *notes, int noteCount) {
+  if(notes == previousNoteArray && type == previousBeepType)
     return;
-  beepState = 0;
-  if (beepType == BEEP_WITH_RATE || beepType == NO_BEEP) {
+  debugPrint("Starting Type:");
+  debugPrintln(type);
+  if (type == BEEP_SINGLE) {
     previousBeepType = beepType;
+    debugPrint("Assingned Prev Type:");
+  debugPrintln(previousBeepType);
+    if (previousBeepType == BEEP_REPEATING) {
+      copyNotesArrayToArray(currentNoteArray, previousNoteArray, 2);
+      previousNoteTotal = currentNoteTotal;
+    }
   }
-  beepType = type;
-  StartLazyTimer(BeepTimer);
-}
-
-void Beeper::beepWithDuration(unsigned long duration) {
   
+  noteIndex = 0;
+  beepType = type;
+  copyNotesArrayToArray(notes, currentNoteArray, noteCount);
+  currentNoteTotal = noteCount;
+  StartLazyTimer(BeepTimer);
 }
 
 void Beeper::beepWithRate(int rate) {
@@ -184,12 +146,17 @@ void Beeper::beepWithRate(int rate) {
   if (rate < 1) {
     rate = 1;
   }
-  beepPause = 1000/rate;
-  beepLength = 300/rate;
-  
-  startBeepWithType(BEEP_WITH_RATE);
+  int beepPause = rate;
+  int beepLength = rate;
+  Note notes[2] = {{BUZZER_FREQ, beepLength},{0, beepPause}};
+  startBeepWithType(BEEP_REPEATING, notes, 2);
 }
 
+void Beeper::note(int freq) {
+  if (useBuzzer) {
+    toneAC(freq, volume);
+  }
+}
 
 void Beeper::selfTest() {
   for(int freq = 150; freq < 2000; freq += 50) {
@@ -197,6 +164,12 @@ void Beeper::selfTest() {
     delay(40);
   }
   noToneAC();
+}
+
+void Beeper::copyNotesArrayToArray(Note *array1, Note *array2, int count) {
+  for (int i = 0; i < count; i++) {
+    array2[i] = array1[i];
+  }
 }
 
 #endif
