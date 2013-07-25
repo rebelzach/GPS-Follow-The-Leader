@@ -23,9 +23,11 @@ WaypointStore waypoints;
 Beeper beeper;
 boolean adminMode = NO;
 int currentMenuIndex = 0;
+boolean multiMode = NO;
+
 
 void setup() { 
-#if 1 
+#if 0 
   adminMode = YES;
 #endif
   debugBegin();
@@ -37,23 +39,26 @@ void setup() {
   }
   
   if (frontControls.downSwitchState() == ON) {
-    delay(5000);
-    if (frontControls.downSwitchState() == ON) {
-      debugPrintln("Restore Blank Points");
-      waypoints.restoreBlankPoints();
-    }
+    multiMode = YES;
   }
+//    delay(5000);
+//    if (frontControls.downSwitchState() == ON) {
+//      debugPrintln("Restore Blank Points");
+//      waypoints.restoreBlankPoints();
+//    }
   frontControls.setSwitchCallbacks(upSwitchPressed, downSwitchPressed, enterSwitchPressed);
   frontControls.setSwitchHeldCallbacks(upSwitchHeld, downSwitchHeld);
   gpsGuide.setSerialTokenReleasedCallback(gpsSerialReleased);
   if (adminMode == YES) {
     beeper.useBuzzer = YES;
     beeper.volume = 5;
-    beeper.beepWithRate(10);
-    beeper.beepAcknowledge();
+    beeper.beepArrival();
     frontControls.generalMessage("Admin mode");
+  } else if (multiMode) {
+    beeper.beepAcknowledge();
+    frontControls.generalMessage("MultiMode");
   } else {
-    beeper.beepAffirmative();
+    beeper.beepAcknowledge();
     frontControls.generalMessage("Begin Journey");
     loadWaypoint(0);
   }
@@ -64,9 +69,11 @@ void loop() {
   beeper.processLoop();
   gpsGuide.processLoop();
   frontControls.processLoop();
-}
+
+} 
 
 void enterSwitchPressed() {
+  frontControls.activateBacklight();
   if(!adminMode) return;
   float lat, lon;
   boolean goodPosition = gpsGuide.getPosition(&lat, &lon);
@@ -77,7 +84,8 @@ void enterSwitchPressed() {
 }
 
 void upSwitchPressed() {
-  if(!adminMode) return;
+  frontControls.activateBacklight();
+  if(!adminMode && !multiMode) return;
   if (currentMenuIndex < 19) {
     ++currentMenuIndex;
     frontControls.displayNumber(currentMenuIndex);
@@ -86,7 +94,8 @@ void upSwitchPressed() {
 }
 
 void downSwitchPressed() {
-  if(!adminMode) return;
+  frontControls.activateBacklight();
+  if(!adminMode && !multiMode) return;
   if (currentMenuIndex > 0) {
     --currentMenuIndex;
     frontControls.displayNumber(currentMenuIndex);
@@ -116,6 +125,7 @@ void gpsSerialReleased() {
 void loadWaypoint(int point) {
   if (point < 0) {
     gpsGuide.endGuiding();
+    frontControls.generalMessage("No Destination");
     return;
   }
   gpsGuide.endGuiding();
