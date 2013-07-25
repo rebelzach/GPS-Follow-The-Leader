@@ -37,12 +37,16 @@ class FrontControls
     void selfTest();
     void generalMessage(String message);
     void guideMessage(String message);
+    void guideHasFix();
     void guideOffcourse();
     void displayWaypointSelection(int waypointIndex, float lat, float lon);
     void displayNoFix();
     void displayGPS(float lat, float lon, float distance, unsigned long precision, int updates, float dFromRef, float recentCourse, float destCourse, int beepRate);
     void updateGuideInfo(float currentCourse, float courseToDest, float currentDistance);
+    void activateBacklight();
+    void clear();
   private:
+    boolean haveFix;
     void (*upSwitchCallback)();
     void (*downSwitchCallback)();
     void (*enterSwitchCallback)();

@@ -17,10 +17,10 @@ int debugBeepRate = 0;
 float debugCourse = 0;
 float debugDestCourse = 0;
 
-const unsigned long HDOP_UNACCEPTABLE_THRESHOLD = 250;
+const unsigned long HDOP_UNACCEPTABLE_THRESHOLD = 300;
 const float GPS_INVALID_DISTANCE = 1000000.0;
 const int GPS_MAX_INVALID_TIME = 5000;
-const int FAR_ANGLE_TOLERANCE = 60;
+const int FAR_ANGLE_TOLERANCE = 50;
 const int CLOSE_ANGLE_DISTANCE = 30;
 const int CLOSE_ANGLE_TOLERANCE = 50;
 #if 0 // backyard constants
@@ -29,8 +29,8 @@ const int ARRIVAL_THRESHOLD = 2;
 const int BEEP_DISTANCE_SCALAR = 20; // This is the max distance that the beep rate will be calculated against
 #else
 const int GPS_TRACKING_DISTANCE = 5;
-const int ARRIVAL_THRESHOLD = 20;
-const int BEEP_DISTANCE_SCALAR = 1000; // This is the max distance that the beep rate will be calculated against
+const int ARRIVAL_THRESHOLD = 12;
+const int BEEP_DISTANCE_SCALAR = 800; // This is the max distance that the beep rate will be calculated against
 #endif
 
 const int LEVEL_NOSIGNAL= -2;
@@ -69,7 +69,7 @@ void GPSGuide::beginGuiding() {
   //VTG ON, Tiny GPS doesn't use this but it would be good to experiment with its values
   gpsSerial.print("$PSRF103,05,00,01,01*20"); gpsSerial.write(13); gpsSerial.write(10); 
   invalidateMovementReference();
-#if 0
+#if 1
   debugPrintln("tests");
   debugPrintln(courseWithinDegressOfCourse(350, 2, 25)); // true
   debugPrintln(courseWithinDegressOfCourse(2, 350, 25)); // true
@@ -77,6 +77,7 @@ void GPSGuide::beginGuiding() {
   debugPrintln(courseWithinDegressOfCourse(5, 175, 5));  // false
   debugPrintln(courseWithinDegressOfCourse(180, 175, 30)); //true
   debugPrintln(courseWithinDegressOfCourse(180, 185, 30)); //true
+  debugPrintln(courseWithinDegressOfCourse(270, 70, 45)); //false
 #endif
 }
 
@@ -172,8 +173,10 @@ void GPSGuide::returnSerialToken() {
 
 boolean GPSGuide::courseWithinDegressOfCourse(float course1, float course2, float tolerance) {
   float angleDifference;
-  if (fabs(course1 - course2) > 180) {
-    angleDifference = course1 - 360 + course2;
+  if (course1 - course2 > 180) {
+    angleDifference = fabs(course1 - 360) + course2;
+  } else if (course2 - course1 > 180) {
+    angleDifference = fabs(course2 - 360) + course1;
   } else {
     angleDifference = course1 - course2;
   }
@@ -184,6 +187,8 @@ void GPSGuide::updateGuide() {
   if (!isPositionValid()) {
     frontControls.displayNoFix();
     return;
+  } else {
+    
   }
   
   float currentDistance = distanceFromDestination();
@@ -198,7 +203,9 @@ void GPSGuide::updateGuide() {
     return;
   }
   
-  beeper.beepAcknowledge();
+  if(!arrived) {
+    beeper.beepAcknowledge();
+  }
   ++debugMovementUpdates;
   
   float currentCourse = currentCourseFromReference(); // get this before resetting reference
@@ -239,14 +246,18 @@ void GPSGuide::updateLevel(int level) {
       break;
     case LEVEL_ONCOURSE:
     {
-      int beepRate = distanceFromDestination()/BEEP_DISTANCE_SCALAR*10;
+      float effectiveDistance = distanceFromDestination();
+      if (effectiveDistance > BEEP_DISTANCE_SCALAR)
+        effectiveDistance = BEEP_DISTANCE_SCALAR;
+        
+      int beepRate = ((BEEP_DISTANCE_SCALAR-effectiveDistance)/BEEP_DISTANCE_SCALAR)*15;
       debugBeepRate = beepRate;
       beeper.beepWithRate(beepRate);
     }
       break;
     case LEVEL_ARRIVED:
       debugBeepRate = 99;
-      beeper.beepReallyFast();
+      beeper.beepArrival();
       frontControls.guideMessage("You have arrived.");
       break;
   }

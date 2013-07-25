@@ -18,6 +18,9 @@ const int BACKLIGHT_PIN = 9;
 Debounce upSwitch(30 , UP_SWITCH_PIN);
 Debounce downSwitch(30 , DOWN_SWITCH_PIN);
 Debounce enterSwitch(30 , ENTER_SWITCH_PIN);
+LazyTimer(BackLightTimer);
+const unsigned long BACKLIGHT_TIMEOUT = 10000;
+
 
 //const int STATUS_LIGHT_PIN = 6;
 const int STATUS_LIGHT_PULSE_TIME = 100;
@@ -28,8 +31,9 @@ LazyTimer(HoldTimer);
 FrontControls::FrontControls()
 {
   pinMode(BACKLIGHT_PIN, OUTPUT);
-  digitalWrite(BACKLIGHT_PIN, HIGH);
-  
+  digitalWrite(BACKLIGHT_PIN, LOW);
+  haveFix = YES;
+
   // Switch
   pinMode(UP_SWITCH_PIN, INPUT);
   pinMode(DOWN_SWITCH_PIN, INPUT);
@@ -45,6 +49,15 @@ FrontControls::FrontControls()
 void FrontControls::begin() {
   lcd.begin(16, 2);
 }
+void  FrontControls::guideHasFix() {
+  if (haveFix) {
+    frontControls.activateBacklight();
+    haveFix = YES;
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.write("Follow The Beeps");
+  }
+}
 
 boolean FrontControls::upSwitchState() {
   return !digitalRead(UP_SWITCH_PIN);
@@ -56,6 +69,10 @@ boolean FrontControls::downSwitchState() {
 
 void FrontControls::processLoop()
 {
+   if (LazyTimerPastDuration(BackLightTimer, BACKLIGHT_TIMEOUT)) {
+    StopLazyTimer(BackLightTimer);
+    digitalWrite(BACKLIGHT_PIN, OFF);;
+  }
   if (enterSwitch.checkForStateChange()) {
     if (enterSwitch.read()) {
         handleSwitch(ENTER_SWITCH, PUSHED);
@@ -144,7 +161,7 @@ void FrontControls::selfTest() {
 void FrontControls::displayWaypointSelection(int waypointIndex, float lat, float lon) {
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.write("Waypoint: ");
+  lcd.write("Destination: ");
   lcd.print(waypointIndex);
   lcd.setCursor(0,1);
   lcd.print(lat, 3);
@@ -173,10 +190,14 @@ void FrontControls::guideOffcourse() {
   }
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("Follow the beeps");
+  lcd.print("Follow The Beeps");
 }
 
 void FrontControls::displayNoFix() {
+  if (!haveFix)
+    return;
+  frontControls.activateBacklight();
+  haveFix = NO;
   debugPrintln("No Signal");
   lcd.clear();
   lcd.setCursor(0,0);
@@ -208,6 +229,10 @@ void FrontControls::displayGPS(float lat, float lon, float distance, unsigned lo
   lcd.print(precision);
 }
 
+void FrontControls::clear() {
+   lcd.clear(); 
+}
+
 void FrontControls::updateGuideInfo(float currentCourse, float courseToDest, float currentDistance) {
   lcd.clear();
   lcd.setCursor(0,0);
@@ -218,6 +243,11 @@ void FrontControls::updateGuideInfo(float currentCourse, float courseToDest, flo
   lcd.setCursor(0,1);
   lcd.print("Dis:");
   lcd.print(currentDistance, 1);
+}
+
+void FrontControls::activateBacklight() {
+  digitalWrite(BACKLIGHT_PIN, ON);
+  StartLazyTimer(BackLightTimer);
 }
 
 #endif

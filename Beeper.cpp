@@ -23,8 +23,8 @@ Beeper::Beeper() {
   previousNoteTotal = 0;
 }
 
-const int arrivalCount = 8;
-Note arrival[arrivalCount] = {{NOTE_C5, 4},{NOTE_G4, 8},{NOTE_G4, 8},{NOTE_A4, 4},{NOTE_G4, 4},{0, 4},{NOTE_B4, 8},{NOTE_C5, 4}};
+const int arrivalCount = 12;
+Note arrival[arrivalCount] = {{NOTE_C5, 4},{NOTE_G4, 8},{NOTE_G4, 8},{NOTE_A4, 4},{NOTE_G4, 4},{0, 4},{NOTE_B4, 8},{NOTE_C5, 4},{0, 1},{0, 1},{0, 1},{0, 1}};
 const int acknowledgeCount = 4;
 Note acknowledge[acknowledgeCount] = {{1200, 16},{0, 8},{1200, 16},{0, 8}};
 
@@ -86,7 +86,7 @@ void Beeper::processLoop() {
 
 void Beeper::beepArrival()
 {
-  startBeepWithType(BEEP_SINGLE, arrival, arrivalCount);
+  startBeepWithType(BEEP_REPEATING, arrival, arrivalCount);
 }
 
 void Beeper::beepAcknowledge()
@@ -142,13 +142,13 @@ void Beeper::startBeepWithType(int type, Note *notes, int noteCount) {
 void Beeper::beepWithRate(int rate) {
   debugPrint("Beep:");
   debugPrintln(rate);
-  if (rate > 10)
-    rate = 10;
+  if (rate > 15)
+    rate = 15;
   if (rate < 1) {
     rate = 1;
   }
-  int beepPause = rate;
-  int beepLength = rate;
+  int beepPause = rate * 1.5;
+  int beepLength = rate * 2;
   Note notes[2] = {{BUZZER_FREQ, beepLength},{0, beepPause}};
   startBeepWithType(BEEP_REPEATING, notes, 2);
 }
