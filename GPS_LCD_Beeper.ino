@@ -1,5 +1,5 @@
 #include <toneAC.h>
-
+#include "Arduino.h"
 #include "Definitions.h"
 #include <SoftwareSerial.h>
 #include "FrontControls.h"

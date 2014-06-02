@@ -69,7 +69,7 @@ void GPSGuide::beginGuiding() {
   //VTG ON, Tiny GPS doesn't use this but it would be good to experiment with its values
   gpsSerial.print("$PSRF103,05,00,01,01*20"); gpsSerial.write(13); gpsSerial.write(10); 
   invalidateMovementReference();
-#if 1
+#if 0
   debugPrintln("tests");
   debugPrintln(courseWithinDegressOfCourse(350, 2, 25)); // true
   debugPrintln(courseWithinDegressOfCourse(2, 350, 25)); // true
@@ -271,6 +271,9 @@ boolean GPSGuide::getPosition(float *lat, float *lon) {
     if (hdopVal == TinyGPS::GPS_INVALID_HDOP || hdopVal > HDOP_UNACCEPTABLE_THRESHOLD) {
       return NO;
     }
+    Serial.print(*lat,6);
+    debugPrint(",");
+    Serial.println(*lon,6);
     return YES;
   }
   return NO;

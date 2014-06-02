@@ -3,7 +3,6 @@
 #define FRONTCONTROLS_h
 
 #include "Arduino.h"
-#include <SevSeg.h>
 #include <TinyGPS.h>
 
 enum Switches {
