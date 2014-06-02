@@ -33,6 +33,7 @@ class FrontControls
     void handleSwitch(Switches theSwitch, SwitchStatus theStatus);
     boolean upSwitchState();
     boolean downSwitchState();
+    boolean enterSwitchState();
     void selfTest();
     void generalMessage(String message);
     void guideMessage(String message);

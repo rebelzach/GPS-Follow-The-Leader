@@ -67,6 +67,10 @@ boolean FrontControls::downSwitchState() {
   return !digitalRead(DOWN_SWITCH_PIN);
 }
 
+boolean FrontControls::enterSwitchState() {
+  return !digitalRead(ENTER_SWITCH_PIN);
+}
+
 void FrontControls::processLoop()
 {
    if (LazyTimerPastDuration(BackLightTimer, BACKLIGHT_TIMEOUT)) {
