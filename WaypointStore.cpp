@@ -15,7 +15,8 @@ WaypointStore::WaypointStore() {
 
 }
 
-void WaypointStore::restorePresetPoints()
+// Meadow Hike
+void WaypointStore::restoreMeadowPoints()
 {
   float waypoint[16][2] = 
   {
@@ -42,11 +43,47 @@ void WaypointStore::restorePresetPoints()
   }
 }
 
+// Geocache
+void WaypointStore::restoreGeocachePoints()
+{
+  float waypoint[9][2] = 
+  {
+  {39.645155025646091,-105.621536001563072},
+  {39.644999960437417,-105.621631974354386},
+  {39.644716987386346,-105.621285969391465},
+  {39.644817989319563,-105.620540985837579},
+  {39.645104985684156,-105.6206089630723},
+  {39.645209005102515,-105.620525982230902},
+  {39.645687025040388,-105.620461022481322},
+  {39.646193962544203,-105.620388016104698},
+  {39.646482970565557,-105.620308974757791}
+};
+  
+  for (int i = 0; i < 9; i++) {
+    storeWaypoint(i, waypoint[i][0], waypoint[i][1]);
+  }
+}
+
 void WaypointStore::restoreBlankPoints()
 {
   for (int i = 0; i < 19; i++) {
     storeWaypoint(i, TinyGPS::GPS_INVALID_F_ANGLE, TinyGPS::GPS_INVALID_F_ANGLE);
   }
+}
+
+void WaypointStore::dumpWaypoints()
+{
+  Serial.println("Begin Dump");
+  for (int i = 0; i < 19; i++) {
+    float lat, lon;
+    retrieveWaypoint(i, &lat, &lon);
+    Serial.print(i);
+    Serial.print(",");
+    Serial.print(lat, 6);
+    Serial.print(",");
+    Serial.println(lon, 6);
+  }
+  Serial.println("End Dump");
 }
 
 void WaypointStore::retrieveWaypoint(int waypoint, float *lat, float *lon)

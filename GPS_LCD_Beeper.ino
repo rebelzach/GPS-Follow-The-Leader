@@ -48,6 +48,7 @@ void setup() {
   frontControls.setSwitchCallbacks(upSwitchPressed, downSwitchPressed, enterSwitchPressed);
   frontControls.setSwitchHeldCallbacks(upSwitchHeld, downSwitchHeld);
   gpsGuide.setSerialTokenReleasedCallback(gpsSerialReleased);
+  waypoints.dumpWaypoints();
   if (adminMode == YES) {
     beeper.useBuzzer = YES;
     beeper.volume = 5;

@@ -11,6 +11,7 @@ LazyTimer(BeepTimer);
 const int BUZZER_PIN = 10;
 const int BUZZER_FREQ = 800;
 const int BUZZER_VOL = 10;
+//const int BUZZER_VOL = 10;
 const int SILENT_PIN = 6;
 
 Beeper::Beeper() {
@@ -26,15 +27,13 @@ Beeper::Beeper() {
 const int arrivalCount = 12;
 Note arrival[arrivalCount] = {{NOTE_C5, 4},{NOTE_G4, 8},{NOTE_G4, 8},{NOTE_A4, 4},{NOTE_G4, 4},{0, 4},{NOTE_B4, 8},{NOTE_C5, 4},{0, 1},{0, 1},{0, 1},{0, 1}};
 const int acknowledgeCount = 4;
-Note acknowledge[acknowledgeCount] = {{1200, 16},{0, 8},{1200, 16},{0, 8}};
+Note acknowledge[acknowledgeCount] = {{2400, 16},{0, 8},{2400, 16},{0, 8}};
 
 void Beeper::processLoop() {
   if (beepType == NO_BEEP) 
     return;
   
   if (noteIndex == 0) {
-    debugPrint("note");
-    debugPrintln(noteIndex);
     note(currentNoteArray[noteIndex].freq);
     ResetLazyTimer(BeepTimer);
     ++noteIndex;
@@ -44,10 +43,6 @@ void Beeper::processLoop() {
   if (beepType == BEEP_SINGLE) {
     int duration = 1000/currentNoteArray[noteIndex - 1].duration;
     if (LazyTimerDuration(BeepTimer) > duration) {
-      debugPrint("note");
-      debugPrint(noteIndex);
-      debugPrint(",");
-      debugPrintln(currentNoteArray[noteIndex - 1].freq);
       if (noteIndex == currentNoteTotal) { // Last note
         note(0);
         debugPrint("Previous Type:");
@@ -67,10 +62,6 @@ void Beeper::processLoop() {
   
   if (beepType == BEEP_REPEATING) {
     if (LazyTimerDuration(BeepTimer) > 1000/currentNoteArray[noteIndex - 1].duration) {
-      debugPrint("note");
-      debugPrint(noteIndex);
-      debugPrint(",");
-      debugPrintln(currentNoteArray[noteIndex - 1].duration);
       if (noteIndex == currentNoteTotal) { // Last note
         ResetLazyTimer(BeepTimer);
         noteIndex = 0;

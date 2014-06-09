@@ -204,7 +204,7 @@ void GPSGuide::updateGuide() {
   }
   
   if(!arrived) {
-    beeper.beepAcknowledge();
+    //beeper.beepAcknowledge(); // Deciding to not use this feature right now beeps to acknowledge recognized movement
   }
   ++debugMovementUpdates;
   
@@ -271,9 +271,6 @@ boolean GPSGuide::getPosition(float *lat, float *lon) {
     if (hdopVal == TinyGPS::GPS_INVALID_HDOP || hdopVal > HDOP_UNACCEPTABLE_THRESHOLD) {
       return NO;
     }
-    Serial.print(*lat,6);
-    debugPrint(",");
-    Serial.println(*lon,6);
     return YES;
   }
   return NO;

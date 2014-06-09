@@ -15,7 +15,7 @@ class WaypointStore
     void storeWaypoint(int waypoint, float lat, float lon);
     void restorePresetPoints();
     void restoreBlankPoints();
-
+    void dumpWaypoints();
   private:
     
      
