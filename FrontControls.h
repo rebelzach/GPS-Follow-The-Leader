@@ -37,8 +37,10 @@ class FrontControls
     void selfTest();
     void generalMessage(String message);
     void guideMessage(String message);
+    void guideMessage(String message1, String message2);
     void guideHasFix();
     void guideOffcourse();
+    void guideOncourse();
     void displayWaypointSelection(int waypointIndex, float lat, float lon);
     void displayNoFix();
     void displayGPS(float lat, float lon, float distance, unsigned long precision, int updates, float dFromRef, float recentCourse, float destCourse, int beepRate);

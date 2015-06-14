@@ -35,16 +35,16 @@ void setup() {
   frontControls.begin();
   frontControls.displayNumber(currentMenuIndex);
   if (frontControls.upSwitchState() == ON && frontControls.downSwitchState() == ON) {
-    debugPrintln("Restore Points");
-    waypoints.restorePresetPoints();
+    adminMode = YES;
   } else {
     if (frontControls.upSwitchState() == ON) {
-        adminMode = YES;
+      waypoints.restoreMeadowPoints();
     }
     if (frontControls.downSwitchState() == ON) {
-      multiMode = YES;
+      waypoints.restoreGeocachePoints();
     }
   }
+  multiMode = YES;
   frontControls.setSwitchCallbacks(upSwitchPressed, downSwitchPressed, enterSwitchPressed);
   frontControls.setSwitchHeldCallbacks(upSwitchHeld, downSwitchHeld);
   gpsGuide.setSerialTokenReleasedCallback(gpsSerialReleased);

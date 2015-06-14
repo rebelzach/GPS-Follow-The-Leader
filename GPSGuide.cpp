@@ -30,7 +30,7 @@ const int BEEP_DISTANCE_SCALAR = 20; // This is the max distance that the beep r
 #else
 const int GPS_TRACKING_DISTANCE = 5;
 const int ARRIVAL_THRESHOLD = 12;
-const int BEEP_DISTANCE_SCALAR = 800; // This is the max distance that the beep rate will be calculated against
+const int BEEP_DISTANCE_SCALAR = 300; // This is the max distance that the beep rate will be calculated against
 #endif
 
 const int LEVEL_NOSIGNAL= -2;
@@ -124,7 +124,7 @@ void GPSGuide::processLoop() {
   while (gpsSerial.available()) {
     ResetLazyTimer(SerialTimeoutTimer);
     char c = gpsSerial.read();
-    //Serial.write(c);
+    // Serial.write(c);
     if (gps.encode(c))
       newData = true;
   }
@@ -196,6 +196,9 @@ void GPSGuide::updateGuide() {
   boolean arrived = NO;
   if (currentDistance < ARRIVAL_THRESHOLD) {
     updateLevel(LEVEL_ARRIVED);
+    static char s[32];
+    String d = dtostrf(currentDistance, 2, 1, s);
+    frontControls.guideMessage("You are about", d + " yards away");
     arrived = YES;
   }
   
@@ -253,12 +256,12 @@ void GPSGuide::updateLevel(int level) {
       int beepRate = ((BEEP_DISTANCE_SCALAR-effectiveDistance)/BEEP_DISTANCE_SCALAR)*15;
       debugBeepRate = beepRate;
       beeper.beepWithRate(beepRate);
+      frontControls.guideOncourse();
     }
       break;
     case LEVEL_ARRIVED:
       debugBeepRate = 99;
       beeper.beepArrival();
-      frontControls.guideMessage("You have arrived.");
       break;
   }
 }

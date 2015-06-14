@@ -13,7 +13,8 @@ class WaypointStore
     WaypointStore();
     void retrieveWaypoint(int waypoint, float *lat, float *lon);
     void storeWaypoint(int waypoint, float lat, float lon);
-    void restorePresetPoints();
+    void restoreMeadowPoints();
+    void restoreGeocachePoints();
     void restoreBlankPoints();
     void dumpWaypoints();
   private:

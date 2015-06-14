@@ -8,7 +8,7 @@
 #include "Debounce.h"
 #include <LiquidCrystal.h>
 
-LiquidCrystal lcd(A4, A3, 4, 5, 6, 7, 8);
+LiquidCrystal lcd(12, A3, 4, 5, 6, 7, 8);
 
 const int HOLD_DURATION = 8000;
 const int UP_SWITCH_PIN = A0;
@@ -19,7 +19,7 @@ Debounce upSwitch(30 , UP_SWITCH_PIN);
 Debounce downSwitch(30 , DOWN_SWITCH_PIN);
 Debounce enterSwitch(30 , ENTER_SWITCH_PIN);
 LazyTimer(BackLightTimer);
-const unsigned long BACKLIGHT_TIMEOUT = 10000;
+const unsigned long BACKLIGHT_TIMEOUT = 900000;
 
 
 //const int STATUS_LIGHT_PIN = 6;
@@ -180,15 +180,30 @@ void FrontControls::generalMessage(String message) {
 }
 
 void FrontControls::guideMessage(String message) {
+  guideMessage(message, "");
+} 
+
+void FrontControls::guideMessage(String message1, String message2) {
   if (adminMode) {
      return; 
   }
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print(message);
+  lcd.print(message1);
+  lcd.setCursor(0,1);
+  lcd.print(message2);
 } 
 
 void FrontControls::guideOffcourse() {
+  if (adminMode) {
+     return; 
+  }
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Follow The Beeps");
+}
+
+void FrontControls::guideOncourse() {
   if (adminMode) {
      return; 
   }
