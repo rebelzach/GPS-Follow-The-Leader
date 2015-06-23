@@ -17,7 +17,7 @@ struct Note {
 class Beeper
 {
   public:
-    
+
     // methods
     Beeper();
     void processLoop();
@@ -31,7 +31,7 @@ class Beeper
     boolean useBuzzer;
     int volume;
     void selfTest();
-    
+
   private:
     void startBeepWithType(int type, Note *notes, int noteCount);
     int beepType;
@@ -41,7 +41,7 @@ class Beeper
     int previousNoteTotal;
     Note previousNoteArray[15];
     void copyNotesArrayToArray(Note *array1, Note *array2, int count);
-    int noteIndex; 
+    int noteIndex;
     void note(int freq);
 };
 
