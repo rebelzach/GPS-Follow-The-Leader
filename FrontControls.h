@@ -19,7 +19,7 @@ enum SwitchStatus {
 class FrontControls
 {
   public:
-    
+
     // methods
     FrontControls();
     void begin();
@@ -54,7 +54,7 @@ class FrontControls
     void (*enterSwitchCallback)();
     void (*upSwitchHeldCallback)();
     void (*downSwitchHeldCallback)();
-    
+
     void checkSwitchPin(int pin);
     boolean isSelfTesting;
 };

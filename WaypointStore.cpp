@@ -18,7 +18,7 @@ WaypointStore::WaypointStore() {
 // Meadow Hike
 void WaypointStore::restoreMeadowPoints()
 {
-  float waypoint[16][2] = 
+  float waypoint[16][2] =
   {
   {39.67392079097836,-105.6117598536543},
   {39.67312967695812,-105.6137704895044},
@@ -37,7 +37,7 @@ void WaypointStore::restoreMeadowPoints()
   {39.64812346523554,-105.6201016913099},
   {39.6462335131115,-105.6209625339392}
 };
-  
+
   for (int i = 0; i < 16; i++) {
     storeWaypoint(i, waypoint[i][0], waypoint[i][1]);
   }
@@ -46,7 +46,7 @@ void WaypointStore::restoreMeadowPoints()
 // Geocache
 void WaypointStore::restoreGeocachePoints()
 {
-  float waypoint[9][2] = 
+  float waypoint[9][2] =
   {
   {39.645156,-105.621536},
   {39.645000,-105.621635},
@@ -58,7 +58,7 @@ void WaypointStore::restoreGeocachePoints()
   {39.646389,-105.620376},
   {39.646228,-105.621467}
 };
-  
+
   for (int i = 0; i < 9; i++) {
     storeWaypoint(i, waypoint[i][0], waypoint[i][1]);
   }
@@ -73,17 +73,17 @@ void WaypointStore::restoreBlankPoints()
 
 void WaypointStore::dumpWaypoints()
 {
-  Serial.println("Begin Dump");
+  Serial.println(F("Begin Dump"));
   for (int i = 0; i < 19; i++) {
     float lat, lon;
     retrieveWaypoint(i, &lat, &lon);
     Serial.print(i);
-    Serial.print(",");
+    Serial.print(F(","));
     Serial.print(lat, 6);
-    Serial.print(",");
+    Serial.print(F(","));
     Serial.println(lon, 6);
   }
-  Serial.println("End Dump");
+  Serial.println(F("End Dump"));
 }
 
 void WaypointStore::retrieveWaypoint(int waypoint, float *lat, float *lon)
@@ -104,7 +104,7 @@ void WaypointStore::storeWaypoint(int waypoint, float lat, float lon)
   if (eepromReadFloat(lonAddress) != lon) {
     eepromWriteFloat(lonAddress, lon);
   }
-  debugPrintln("Storing");
+  debugPrintln(F("Storing"));
 }
 
 int addressForWaypoint(int waypoint)
@@ -112,20 +112,20 @@ int addressForWaypoint(int waypoint)
   int address = waypoint * 4 * 2;
   return address;
 }
- 
+
 float eepromReadFloat(int address)
 {
    union u_tag {
      byte b[4];
      float fval;
-   } u;   
+   } u;
    u.b[0] = EEPROM.read(address);
    u.b[1] = EEPROM.read(address+1);
    u.b[2] = EEPROM.read(address+2);
    u.b[3] = EEPROM.read(address+3);
    return u.fval;
 }
- 
+
 void eepromWriteFloat(int address, float value)
 {
    union u_tag {
@@ -133,7 +133,7 @@ void eepromWriteFloat(int address, float value)
      float fval;
    } u;
    u.fval=value;
- 
+
    EEPROM.write(address  , u.b[0]);
    EEPROM.write(address+1, u.b[1]);
    EEPROM.write(address+2, u.b[2]);
@@ -141,4 +141,3 @@ void eepromWriteFloat(int address, float value)
 }
 
 #endif
-

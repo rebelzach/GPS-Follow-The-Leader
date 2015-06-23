@@ -42,7 +42,7 @@ FrontControls::FrontControls()
   digitalWrite(UP_SWITCH_PIN, HIGH);
   digitalWrite(DOWN_SWITCH_PIN, HIGH);
   digitalWrite(ENTER_SWITCH_PIN, HIGH);
-  
+
   isSelfTesting = NO;
 }
 
@@ -90,7 +90,7 @@ void FrontControls::processLoop()
         handleSwitch(UP_SWITCH, PUSHED);
       }
       StopLazyTimer(HoldTimer);
-      debugPrintln("up");
+      debugPrintln(F("up"));
     } else {
       // Down
       StartLazyTimer(HoldTimer);
@@ -104,16 +104,16 @@ void FrontControls::processLoop()
         handleSwitch(DOWN_SWITCH, PUSHED);
       }
       StopLazyTimer(HoldTimer);
-      debugPrintln("down");
+      debugPrintln(F("down"));
     } else {
       // Down
       StartLazyTimer(HoldTimer);
     }
   }
-  
+
   if (LazyTimerPastDuration(StatusPulseTimer, STATUS_LIGHT_PULSE_TIME)) {
     //digitalWrite(STATUS_LIGHT_PIN, !digitalRead(STATUS_LIGHT_PIN));
-    ResetLazyTimer(StatusPulseTimer); 
+    ResetLazyTimer(StatusPulseTimer);
   }
 }
 
@@ -129,7 +129,7 @@ void FrontControls::setSwitchHeldCallbacks(void (*upHeldCallback)(),void (*downH
 }
 
 void FrontControls::displayNumber(int number) {
-  
+
 }
 
 void FrontControls::handleSwitch(Switches theSwitch, SwitchStatus theStatus) {
@@ -141,13 +141,13 @@ void FrontControls::handleSwitch(Switches theSwitch, SwitchStatus theStatus) {
     case UP_SWITCH:
       if (theStatus == PUSHED)
         upSwitchCallback();
-      else 
+      else
         upSwitchHeldCallback();
       break;
     case DOWN_SWITCH:
       if (theStatus == PUSHED)
         downSwitchCallback();
-      else 
+      else
         downSwitchHeldCallback();
       break;
     case ENTER_SWITCH:
@@ -158,7 +158,7 @@ void FrontControls::handleSwitch(Switches theSwitch, SwitchStatus theStatus) {
 }
 
 void FrontControls::selfTest() {
-  lcd.write(" Press a Button");
+  lcd.print(F(" Press a Button"));
   isSelfTesting = YES;
 }
 
@@ -169,7 +169,7 @@ void FrontControls::displayWaypointSelection(int waypointIndex, float lat, float
   lcd.print(waypointIndex);
   lcd.setCursor(0,1);
   lcd.print(lat, 3);
-  lcd.print(",");
+  lcd.print(F(","));
   lcd.print(lon, 3);
 }
 
@@ -181,35 +181,35 @@ void FrontControls::generalMessage(String message) {
 
 void FrontControls::guideMessage(String message) {
   guideMessage(message, "");
-} 
+}
 
 void FrontControls::guideMessage(String message1, String message2) {
   if (adminMode) {
-     return; 
+     return;
   }
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(message1);
   lcd.setCursor(0,1);
   lcd.print(message2);
-} 
+}
 
 void FrontControls::guideOffcourse() {
   if (adminMode) {
-     return; 
+     return;
   }
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("Follow The Beeps");
+  lcd.print(F("Follow The Beeps"));
 }
 
 void FrontControls::guideOncourse() {
   if (adminMode) {
-     return; 
+     return;
   }
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("Follow The Beeps");
+  lcd.print(F("Follow The Beeps"));
 }
 
 void FrontControls::displayNoFix() {
@@ -217,7 +217,7 @@ void FrontControls::displayNoFix() {
     return;
   frontControls.activateBacklight();
   haveFix = NO;
-  debugPrintln("No Signal");
+  debugPrintln(F("No Signal"));
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.write("No Signal");
@@ -229,38 +229,38 @@ void FrontControls::displayGPS(float lat, float lon, float distance, unsigned lo
   lcd.clear();
   lcd.setCursor(0,0);
 //  lcd.print(lat, 4);
-//  lcd.print(",");
+//  lcd.print(F(","));
 //  lcd.print(lon, 4);
-  lcd.print("C");
+  lcd.print(F("C"));
   lcd.print(recentCourse,0);
-  lcd.print("DC");
+  lcd.print(F("DC"));
   lcd.print(destCourse,0);
-  lcd.print("BR");
+  lcd.print(F("BR"));
   lcd.print(beepRate);
   lcd.setCursor(0,1);
-  lcd.print("U");
+  lcd.print(F("U"));
   lcd.print(updates);
-  lcd.print("R");
+  lcd.print(F("R"));
   lcd.print(dFromRef);
-  lcd.print("D");
+  lcd.print(F("D"));
   lcd.print(distance, 0);
-  lcd.print("P");
+  lcd.print(F("P"));
   lcd.print(precision);
 }
 
 void FrontControls::clear() {
-   lcd.clear(); 
+   lcd.clear();
 }
 
 void FrontControls::updateGuideInfo(float currentCourse, float courseToDest, float currentDistance) {
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print("cc:");
+  lcd.print(F("cc:"));
   lcd.print(currentCourse, 1);
-  lcd.print("cd:");
+  lcd.print(F("cd:"));
   lcd.print(courseToDest, 1);
   lcd.setCursor(0,1);
-  lcd.print("Dis:");
+  lcd.print(F("Dis:"));
   lcd.print(currentDistance, 1);
 }
 
@@ -270,4 +270,3 @@ void FrontControls::activateBacklight() {
 }
 
 #endif
- 

@@ -9,7 +9,7 @@ class GPSGuide
 {
   public:
     boolean displayInfo;
-    
+
     // methods
     GPSGuide();
     boolean getPosition(float *lat, float *lon);
@@ -21,7 +21,7 @@ class GPSGuide
     void setFixChangedCallback(void (*fixChangedCallback)(boolean));
     void setSerialTokenReleasedCallback(void (*serialTokenReleasedCallback)());
     void serialTokenReturned();
-    
+
   private:
     boolean haveSerialToken;
     void returnSerialToken();
@@ -30,10 +30,10 @@ class GPSGuide
     float destinationLat;
     float destinationLon; 
     float refLat;
-    float refLon; 
+    float refLon;
     boolean guiding;
     int hotColdLevel;
-    
+
     boolean isPositionValid();
     float courseToDestination();
     boolean movedFarEnoughToUpdateStatus();

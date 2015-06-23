@@ -30,22 +30,22 @@ const int acknowledgeCount = 4;
 Note acknowledge[acknowledgeCount] = {{2400, 16},{0, 8},{2400, 16},{0, 8}};
 
 void Beeper::processLoop() {
-  if (beepType == NO_BEEP) 
+  if (beepType == NO_BEEP)
     return;
-  
+
   if (noteIndex == 0) {
     note(currentNoteArray[noteIndex].freq);
     ResetLazyTimer(BeepTimer);
     ++noteIndex;
     return;
   }
-  
+
   if (beepType == BEEP_SINGLE) {
     int duration = 1000/currentNoteArray[noteIndex - 1].duration;
     if (LazyTimerDuration(BeepTimer) > duration) {
       if (noteIndex == currentNoteTotal) { // Last note
         note(0);
-        debugPrint("Previous Type:");
+        debugPrint(F("Previous Type:"));
         debugPrintln(previousBeepType);
         beepType = previousBeepType;
         copyNotesArrayToArray(previousNoteArray, currentNoteArray, previousNoteTotal);
@@ -57,9 +57,9 @@ void Beeper::processLoop() {
       note(currentNoteArray[noteIndex].freq);
       ++noteIndex;
       ResetLazyTimer(BeepTimer);
-    } 
+    }
   }
-  
+
   if (beepType == BEEP_REPEATING) {
     if (LazyTimerDuration(BeepTimer) > 1000/currentNoteArray[noteIndex - 1].duration) {
       if (noteIndex == currentNoteTotal) { // Last note
@@ -86,12 +86,12 @@ void Beeper::beepAcknowledge()
 }
 
 void Beeper::beepReallyFast() {
-  debugPrintln("Beep Real Fast");
+  debugPrintln(F("Beep Real Fast"));
   //startBeepWithType(BEEP_REPEATING);
 }
 
 void Beeper::stopBeeping() {
-  debugPrintln("No beep");
+  debugPrintln(F("No beep"));
   StopLazyTimer(BeepTimer);
   beepType = NO_BEEP;
   noteIndex = 0;
@@ -99,30 +99,30 @@ void Beeper::stopBeeping() {
 }
 
 void Beeper::beepNegative() {
-  debugPrintln("Beep Negative");
+  debugPrintln(F("Beep Negative"));
   //startBeepWithType(BEEP_SINGLE);
 }
 
 void Beeper::beepAffirmative() {
-  debugPrintln("Beep Affirmative");
+  debugPrintln(F("Beep Affirmative"));
   //startBeepWithType(BEEP_SINGLE);
 }
 
 void Beeper::startBeepWithType(int type, Note *notes, int noteCount) {
   if(notes == previousNoteArray && type == previousBeepType)
     return;
-  debugPrint("Starting Type:");
+  debugPrint(F("Starting Type:"));
   debugPrintln(type);
   if (type == BEEP_SINGLE) {
     previousBeepType = beepType;
-    debugPrint("Assingned Prev Type:");
+    debugPrint(F("Assingned Prev Type:"));
   debugPrintln(previousBeepType);
     if (previousBeepType == BEEP_REPEATING) {
       copyNotesArrayToArray(currentNoteArray, previousNoteArray, 2);
       previousNoteTotal = currentNoteTotal;
     }
   }
-  
+
   noteIndex = 0;
   beepType = type;
   copyNotesArrayToArray(notes, currentNoteArray, noteCount);
@@ -131,7 +131,7 @@ void Beeper::startBeepWithType(int type, Note *notes, int noteCount) {
 }
 
 void Beeper::beepWithRate(int rate) {
-  debugPrint("Beep:");
+  debugPrint(F("Beep:"));
   debugPrintln(rate);
   if (rate > 15)
     rate = 15;
@@ -165,4 +165,3 @@ void Beeper::copyNotesArrayToArray(Note *array1, Note *array2, int count) {
 }
 
 #endif
-

@@ -8,6 +8,7 @@
 #include <EEPROM.h>
 #include "WaypointStore.h"
 #include <LiquidCrystal.h>
+
 //Todo
 /*
 Arrival song, press a button to silence
@@ -25,9 +26,8 @@ boolean adminMode = NO;
 int currentMenuIndex = 0;
 boolean multiMode = NO;
 
-
-void setup() { 
-#if 0 
+void setup() {
+#if 0
   adminMode = YES;
 #endif
   debugBegin();
@@ -53,15 +53,16 @@ void setup() {
     beeper.useBuzzer = YES;
     beeper.volume = 5;
     beeper.beepArrival();
-    frontControls.generalMessage("Admin mode");
+    frontControls.generalMessage(F("Admin mode"));
   } else if (multiMode) {
     beeper.beepAcknowledge();
-    frontControls.generalMessage("MultiMode");
+    frontControls.generalMessage(F("MultiMode"));
   } else {
     beeper.beepAcknowledge();
-    frontControls.generalMessage("Begin Journey");
+    frontControls.generalMessage(F("Begin Journey"));
     loadWaypoint(0);
   }
+  attitude.begin ();
   //selfTest();
 }
 
@@ -108,16 +109,16 @@ int currentWaypoint() {
 }
 
 void upSwitchHeld() {
-  
-  
+
+
 }
 
 void downSwitchHeld() {
-   
+
 }
 
 void gpsSerialReleased() {
-  //debugPrintln("Giving token to scanner");
+  //debugPrintln(F("Giving token to scanner"));
   gpsGuide.serialTokenReturned();
 }
 
@@ -125,7 +126,7 @@ void gpsSerialReleased() {
 void loadWaypoint(int point) {
   if (point < 0) {
     gpsGuide.endGuiding();
-    frontControls.generalMessage("No Destination");
+    frontControls.generalMessage(F("No Destination"));
     return;
   }
   gpsGuide.endGuiding();
@@ -133,9 +134,9 @@ void loadWaypoint(int point) {
   waypoints.retrieveWaypoint(point, &lat, &lon);
   frontControls.displayWaypointSelection(point + 1, lat, lon);
   if (lat == TinyGPS::GPS_INVALID_F_ANGLE || lon == TinyGPS::GPS_INVALID_F_ANGLE) {
-    debugPrintln("INVALID WAYPOINT");
+    debugPrintln(F("INVALID WAYPOINT"));
     //frontControls.setStatusLight(ON);
-    return; 
+    return;
   } else {
     //frontControls.setStatusLight(OFF);
   }
@@ -144,7 +145,7 @@ void loadWaypoint(int point) {
 }
 
 void selfTest() {
-  debugPrintln("Running self test");
+  debugPrintln(F("Running self test"));
   //beeper.selfTest();
   frontControls.selfTest();
   gpsGuide.setDestination(100, 100);

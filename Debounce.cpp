@@ -30,5 +30,3 @@ boolean Debounce::read()
 {
   return state;
 }
-
-

@@ -40,9 +40,9 @@ const int LEVEL_ARRIVED= 1;
 
 GPSGuide::GPSGuide() {
   destinationLat = TinyGPS::GPS_INVALID_F_ANGLE;
-  destinationLon = TinyGPS::GPS_INVALID_F_ANGLE; 
+  destinationLon = TinyGPS::GPS_INVALID_F_ANGLE;
   refLat = TinyGPS::GPS_INVALID_F_ANGLE;
-  refLon = TinyGPS::GPS_INVALID_F_ANGLE; 
+  refLon = TinyGPS::GPS_INVALID_F_ANGLE;
   guiding = NO;
   hotColdLevel = -100;
   gpsSerial.begin(4800);
@@ -52,7 +52,7 @@ GPSGuide::GPSGuide() {
 
 void GPSGuide::setDestination(float lat, float lon) {
   if (guiding) {
-    debugPrintln("Didn't expect to have destination set while guiding");
+    debugPrintln(F("Didn't expect to have destination set while guiding"));
   }
   destinationLat = lat;
   destinationLon = lon;
@@ -65,12 +65,12 @@ void GPSGuide::beginGuiding() {
   gpsSerial.listen();
   updateLevel(LEVEL_OFFCOURSE);
   // Enable WAAS
-  gpsSerial.print("$PSRF151,01*0F"); gpsSerial.write(13); gpsSerial.write(10);
+  gpsSerial.print(F("$PSRF151,01*0F")); gpsSerial.write(13); gpsSerial.write(10);
   //VTG ON, Tiny GPS doesn't use this but it would be good to experiment with its values
-  gpsSerial.print("$PSRF103,05,00,01,01*20"); gpsSerial.write(13); gpsSerial.write(10); 
+  gpsSerial.print(F("$PSRF103,05,00,01,01*20")); gpsSerial.write(13); gpsSerial.write(10);
   invalidateMovementReference();
 #if 0
-  debugPrintln("tests");
+  debugPrintln(F("tests"));
   debugPrintln(courseWithinDegressOfCourse(350, 2, 25)); // true
   debugPrintln(courseWithinDegressOfCourse(2, 350, 25)); // true
   debugPrintln(courseWithinDegressOfCourse(5, 350, 5));  // false
@@ -119,7 +119,7 @@ void GPSGuide::processLoop() {
 //  if (!haveSerialToken) {
 //    return;
 //  }
-  
+
   boolean newData = false;
   while (gpsSerial.available()) {
     ResetLazyTimer(SerialTimeoutTimer);
@@ -128,7 +128,7 @@ void GPSGuide::processLoop() {
     if (gps.encode(c))
       newData = true;
   }
-  
+
   if (newData)
   {
     if (guiding) {
@@ -141,21 +141,21 @@ void GPSGuide::processLoop() {
     float flat, flon;
     unsigned long age;
     gps.f_get_position(&flat, &flon, &age);
-    debugPrint("LAT=");
+    debugPrint(F("LAT="));
     Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-    debugPrint(" LON=");
+    debugPrint(F(" LON="));
     Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-    debugPrint(" SAT=");
+    debugPrint(F(" SAT="));
     debugPrint(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-    debugPrint(" PREC=");
+    debugPrint(F(" PREC="));
     debugPrintln(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
     unsigned long chars;
     unsigned short sentences, failed;
     gps.stats(&chars, &sentences, &failed);
-    debugPrint(" SENTENCES=");
+    debugPrint(F(" SENTENCES="));
     debugPrintln(sentences);
     if (guiding) {
-      debugPrint("Distance from dest:");
+      debugPrint(F("Distance from dest:"));
       debugPrintln(gps.distance_between(flat, flon, destinationLat, destinationLon));
     }
 #endif
@@ -188,29 +188,29 @@ void GPSGuide::updateGuide() {
     frontControls.displayNoFix();
     return;
   } else {
-    
+
   }
-  
+
   float currentDistance = distanceFromDestination();
-  
+
   boolean arrived = NO;
   if (currentDistance < ARRIVAL_THRESHOLD) {
     updateLevel(LEVEL_ARRIVED);
     static char s[32];
     String d = dtostrf(currentDistance, 2, 1, s);
-    frontControls.guideMessage("You are about", d + " yards away");
+    frontControls.guideMessage(F("You are about"), d + F(" yards away"));
     arrived = YES;
   }
-  
+
   if (!movedFarEnoughToUpdateStatus()) {
     return;
   }
-  
+
   if(!arrived) {
     //beeper.beepAcknowledge(); // Deciding to not use this feature right now beeps to acknowledge recognized movement
   }
   ++debugMovementUpdates;
-  
+
   float currentCourse = currentCourseFromReference(); // get this before resetting reference
   debugCourse = currentCourse;
   float courseToDest = courseToDestination();
@@ -218,18 +218,18 @@ void GPSGuide::updateGuide() {
   //frontControls.updateGuideInfo(currentCourse, courseToDest, currentDistance);
   storeNewMovementReference();
 
-  
+
   if (arrived)
     return;
-  
+
 
   int degreeTolerance = FAR_ANGLE_TOLERANCE;
   if (currentDistance < CLOSE_ANGLE_DISTANCE) {
     degreeTolerance = CLOSE_ANGLE_TOLERANCE;
   }
-  
+
   if (!courseWithinDegressOfCourse(currentCourse, courseToDest, degreeTolerance)) {
-    debugPrintln("off course");
+    debugPrintln(F("off course"));
     updateLevel(LEVEL_OFFCOURSE);
     return;
   }
@@ -240,7 +240,7 @@ void GPSGuide::updateLevel(int level) {
   if (hotColdLevel == level)
     return;
   hotColdLevel = level;
-  
+
   switch (level) {
     case LEVEL_OFFCOURSE:
       debugBeepRate = 0;
@@ -252,7 +252,7 @@ void GPSGuide::updateLevel(int level) {
       float effectiveDistance = distanceFromDestination();
       if (effectiveDistance > BEEP_DISTANCE_SCALAR)
         effectiveDistance = BEEP_DISTANCE_SCALAR;
-        
+
       int beepRate = ((BEEP_DISTANCE_SCALAR-effectiveDistance)/BEEP_DISTANCE_SCALAR)*15;
       debugBeepRate = beepRate;
       beeper.beepWithRate(beepRate);
@@ -305,7 +305,7 @@ void GPSGuide::storeNewMovementReference() {
   float flat, flon;
   boolean good = getPosition(&flat, &flon);
   if (good) {
-    debugPrintln("Storing ref");
+    debugPrintln(F("Storing ref"));
     refLat = flat;
     refLon = flon;
   }
@@ -323,7 +323,7 @@ float GPSGuide::currentCourseFromReference() {
 
 void GPSGuide::invalidateMovementReference() {
   refLat = TinyGPS::GPS_INVALID_F_ANGLE;
-  refLon = TinyGPS::GPS_INVALID_F_ANGLE; 
+  refLon = TinyGPS::GPS_INVALID_F_ANGLE;
 }
 
 void GPSGuide::displayGPSInfo() {
@@ -334,4 +334,3 @@ void GPSGuide::displayGPSInfo() {
 }
 
 #endif
-

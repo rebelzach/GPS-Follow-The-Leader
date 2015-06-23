@@ -8,7 +8,7 @@
 class WaypointStore
 {
   public:
-    
+
     // methods
     WaypointStore();
     void retrieveWaypoint(int waypoint, float *lat, float *lon);
@@ -18,8 +18,8 @@ class WaypointStore
     void restoreBlankPoints();
     void dumpWaypoints();
   private:
-    
-     
+
+
 };
 
 #endif
