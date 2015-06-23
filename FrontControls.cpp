@@ -8,7 +8,7 @@
 #include "Debounce.h"
 #include <LiquidCrystal.h>
 
-LiquidCrystal lcd(12, A3, 4, 5, 6, 7, 8);
+LiquidCrystal lcd(A4, A3, 4, 5, 6, 7, 8);
 
 const int HOLD_DURATION = 8000;
 const int UP_SWITCH_PIN = A0;

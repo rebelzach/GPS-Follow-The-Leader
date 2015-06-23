@@ -62,7 +62,6 @@ void setup() {
     frontControls.generalMessage(F("Begin Journey"));
     loadWaypoint(0);
   }
-  attitude.begin ();
   //selfTest();
 }
 
@@ -71,7 +70,7 @@ void loop() {
   gpsGuide.processLoop();
   frontControls.processLoop();
 
-} 
+}
 
 void enterSwitchPressed() {
   frontControls.activateBacklight();
